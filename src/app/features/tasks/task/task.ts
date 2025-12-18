@@ -14,6 +14,7 @@ export class TaskComponent {
   // Outputs pour émettre les actions
   toggleComplete = output<number>();
   remove = output<number>();
+  highlight = output<TaskItem>();
 
   onToggle(): void {
     this.toggleComplete.emit(this.task().id);
@@ -21,5 +22,9 @@ export class TaskComponent {
 
   onRemove(): void {
     this.remove.emit(this.task().id);
+  }
+
+  onHighlight(): void {
+    this.highlight.emit(this.task());
   }
 }

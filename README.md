@@ -13,7 +13,7 @@ Application Angular moderne avec gestion complète de tâches. Utilise une archi
 ## Installation
 1. Cloner le dépôt :
    ```bash
-   git clone [URL_DU_DEPOT]
+   git clone https://github.com/LorisPzt/TaskBoardProV2.git
    cd TaskBoardProV2
    ```
 2. Installer les dépendances :
@@ -35,7 +35,8 @@ src/app/
 │       └── task.ts          ← Service TaskService avec BehaviorSubject
 ├── features/
 │   └── tasks/
-│       └── task/            ← Composant réutilisable pour une tâche
+│       ├── task/            ← Composant réutilisable pour une tâche
+│       └── task-highlight/  ← Composant dynamique pour mise en avant
 ├── pages/
 │   ├── home/                ← Page d'accueil
 │   ├── about/               ← Page à propos
@@ -66,46 +67,73 @@ Toutes les routes utilisent le lazy loading pour optimiser les performances :
 - Temps de chargement plus rapide
 - Meilleure expérience utilisateur
 
-## Architecture réactive avec RxJS
+## Séquence 2 - Logique réactive du flux de données
 
 ### 1. Structure de flux
-- Le service `TaskService` utilise un `BehaviorSubject` pour stocker et émettre la liste des tâches
-- Le composant `Tasks` s'abonne à ce flux via `tasks$` et le **pipe async** pour afficher les tâches
-- Les données sont "vivantes" et se mettent à jour automatiquement
+- Le service `TaskService` utilise un `BehaviorSubject` pour stocker et émettre la liste des tâches.
+- Le composant 'Home' s'abonne à ce flux via 'task$' et le **pipe async** pour afficher les tâches.
 
 ### 2. Mise à jour des données
 
-**Service TaskService (`core/services/task.ts`) :**
-```typescript
-private tasksSubject = new BehaviorSubject<TaskItem[]>([...]);
-tasks$: Observable<TaskItem[]> = this.tasksSubject.asObservable();
-```
-
-**Méthodes réactives :**
-- `addTask()` — Ajoute une tâche puis appelle `next()` pour émettre la nouvelle liste
-- `removeTask()` — Supprime une tâche puis émet la liste mise à jour
-- `toggleTask()` — Bascule l'état de complétion d'une tâche
-
-**Dans le composant (`pages/tasks/tasks.ts`) :**
-```typescript
-tasks$ = this.taskService.tasks$;
-```
-
-**Dans le template :**
-```html
-@if (tasks$ | async; as tasks) {
-  @for (task of tasks; track task.id) {
-    <app-task [task]="task" ... />
-  }
-}
-```
+- La méthode 'addTask()' ajout une tâche puis appelle 'next()' pour émettre la nouvelle liste.
+- La méthode 'removeTask()' supprime une tâche puis émet la liste mise à jour.
+- La vue est automatiquement réactualisée sans rechargement
 
 ### 3. Points clés retenus
 
-- ✅ Pas besoin d'appeler `getTasks()` à chaque fois : la donnée est "vivante"
-- ✅ `| async` gère l'abonnement et la désinscription automatiquement
-- ✅ Le flux reste cohérent entre le service et la vue
-- ✅ La vue est automatiquement réactualisée sans rechargement
+- Pas besoin d'appeler 'getTasks()' à chaque fois : la donnée est 'vivante'.
+- '| async' gère l'abonnement et la désinscription automatiquement.
+- Le flux reste cohérent entre le service et la vue .
+
+## Séquence 3 - Lazy Loading & Composants dynamiques
+
+### Lazy Loading
+Technique qui charge le code d'une route uniquement quand l'utilisateur y accède.
+
+**Implémentation :**
+```typescript
+{
+  path: 'tasks',
+  loadComponent: () => import('./pages/tasks/tasks').then(m => m.Tasks)
+}
+```
+
+**Avantages :** Bundle initial plus léger, démarrage plus rapide.
+
+### Structure features/
+Organisation modulaire du code :
+- **`core/`** : Services globaux
+- **`features/`** : Fonctionnalités métier isolées
+- **`pages/`** : Pages routées (lazy-loadées)
+- **`shared/`** : Composants réutilisables (header, footer)
+
+### Composants dynamiques
+Composants créés programmatiquement au lieu d'être déclarés dans le HTML.
+
+**Cas d'usage :** Modals, notifications, highlights à la demande.
+
+**Implémentation avec ViewContainerRef :**
+```typescript
+// 1. Déclarer le conteneur dans le template
+<div #highlightContainer></div>
+
+// 2. Récupérer la référence
+@ViewChild('highlightContainer', { read: ViewContainerRef }) 
+highlightContainer!: ViewContainerRef;
+
+// 3. Créer le composant dynamiquement
+onHighlightTask(task: TaskItem): void {
+  this.highlightContainer.clear(); // Vider avant d'ajouter
+  const ref = this.highlightContainer.createComponent(TaskHighlight);
+  ref.setInput('taskId', task.id);
+  ref.instance.close.subscribe(() => this.closeHighlight());
+}
+```
+
+**Bonnes pratiques :**
+- Appeler `clear()` avant chaque injection
+- Utiliser `setInput()` pour passer des données
+- Se désabonner proprement des Observables
 
 ## Fonctionnalités
 
@@ -124,6 +152,7 @@ tasks$ = this.taskService.tasks$;
 - **Ajout de tâches** : Formulaire avec titre et description
 - **Suppression de tâches** : Bouton de suppression sur chaque tâche
 - **Marquer comme terminée** : Checkbox pour basculer l'état de complétion
+- **Mettre en avant une tâche** : Composant dynamique `TaskHighlight` injecté à la demande
 - **Mise à jour en temps réel** : Toutes les modifications sont instantanées
 
 ### Composants partagés
@@ -136,34 +165,8 @@ tasks$ = this.taskService.tasks$;
 - Copyright © 2025 TaskBoardPro
 - Lien vers la page About
 
-## Architecture des features
 
-La structure avec `features/` permet une organisation modulaire :
 
-- **`features/`** : Fonctionnalités métier de l'application
-  - `tasks/task/` — Composant réutilisable pour afficher une tâche
-- **`pages/`** : Pages principales de l'application
-  - Chaque page peut être lazy-loadée
-- **`shared/`** : Composants réutilisables (header, footer)
-- **`core/`** : Services globaux et logique métier partagée
-
-**Avantages :**
-- Isolation des fonctionnalités
-- Facilite le lazy loading
-- Meilleure maintenabilité
-- Facilite le travail en équipe
-
-## Modèle de données
-
-### Interface TaskItem
-```typescript
-export interface TaskItem {
-  id: number;
-  title: string;
-  description: string;
-  completed: boolean;
-}
-```
 
 ## Commandes utiles
 
@@ -212,6 +215,7 @@ ng g s core/services/mon-service  # Générer un service
 6. **Composants réutilisables** dans shared/
 7. **Services injectables** dans core/services
 8. **TypeScript strict** pour la sécurité du typage
+9. **Composants dynamiques** avec ViewContainerRef pour des fonctionnalités à la demande
 
 ## Auteur
 

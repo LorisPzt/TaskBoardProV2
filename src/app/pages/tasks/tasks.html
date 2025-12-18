@@ -27,6 +27,9 @@
     </button>
   </div>
 
+  <!-- Zone d'injection du composant dynamique -->
+  <div #highlightContainer></div>
+
   <!-- Liste des tâches avec | async pour s'abonner au flux -->
   <div class="tasks-list">
     <h2>Mes Tâches</h2>
@@ -37,6 +40,7 @@
             [task]="task"
             (toggleComplete)="onToggleTask($event)"
             (remove)="onRemoveTask($event)"
+            (highlight)="onHighlightTask($event)"
           />
         }
       } @else {

@@ -1,1 +1,14 @@
-<p>task-highlight works!</p>
+<div class="highlight-container">
+  <div class="highlight-card">
+    <div class="highlight-header">
+      <span class="highlight-badge">⭐ Tâche mise en avant</span>
+      <button class="btn-close" (click)="onClose()">✕</button>
+    </div>
+    <h2 class="highlight-title">{{ taskTitle() }}</h2>
+    <p class="highlight-description">{{ taskDescription() }}</p>
+    <div class="highlight-footer">
+      <span class="task-id">ID: {{ taskId() }}</span>
+    </div>
+  </div>
+</div>
+
