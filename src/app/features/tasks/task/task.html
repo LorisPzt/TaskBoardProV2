@@ -1,1 +1,18 @@
-<p>task works!</p>
+<div class="task-card" [class.completed]="task().completed">
+  <div class="task-header">
+    <h3 class="task-title">{{ task().title }}</h3>
+    <button class="btn-remove" (click)="onRemove()">✕</button>
+  </div>
+  <p class="task-description">{{ task().description }}</p>
+  <div class="task-footer">
+    <label class="checkbox-container">
+      <input
+        type="checkbox"
+        [checked]="task().completed"
+        (change)="onToggle()"
+      />
+      <span>{{ task().completed ? 'Terminée' : 'En cours' }}</span>
+    </label>
+  </div>
+</div>
+

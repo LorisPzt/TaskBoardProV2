@@ -1,1 +1,48 @@
-<p>tasks works!</p>
+<div class="tasks-container">
+  <h1>Gestion des Tâches</h1>
+
+  <!-- Formulaire d'ajout de tâche -->
+  <div class="add-task-form">
+    <h2>Ajouter une nouvelle tâche</h2>
+    <div class="form-group">
+      <input
+        type="text"
+        placeholder="Titre de la tâche"
+        [ngModel]="newTaskTitle()"
+        (ngModelChange)="newTaskTitle.set($event)"
+        class="input-field"
+      />
+    </div>
+    <div class="form-group">
+      <textarea
+        placeholder="Description de la tâche"
+        [ngModel]="newTaskDescription()"
+        (ngModelChange)="newTaskDescription.set($event)"
+        class="input-field textarea-field"
+        rows="3"
+      ></textarea>
+    </div>
+    <button (click)="addTask()" class="btn-add">
+      Ajouter la tâche
+    </button>
+  </div>
+
+  <!-- Liste des tâches avec | async pour s'abonner au flux -->
+  <div class="tasks-list">
+    <h2>Mes Tâches</h2>
+    @if (tasks$ | async; as tasks) {
+      @if (tasks.length > 0) {
+        @for (task of tasks; track task.id) {
+          <app-task
+            [task]="task"
+            (toggleComplete)="onToggleTask($event)"
+            (remove)="onRemoveTask($event)"
+          />
+        }
+      } @else {
+        <p class="no-tasks">Aucune tâche pour le moment. Ajoutez-en une !</p>
+      }
+    }
+  </div>
+</div>
+

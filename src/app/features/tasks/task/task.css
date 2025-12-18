@@ -1,0 +1,84 @@
+.task-card {
+  background-color: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.task-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.task-card.completed {
+  background-color: #f0f8f0;
+  border-color: #4caf50;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.task-title {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.task-card.completed .task-title {
+  text-decoration: line-through;
+  color: #666;
+}
+
+.btn-remove {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-remove:hover {
+  background-color: #d32f2f;
+}
+
+.task-description {
+  color: #666;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.task-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 0.5rem;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.checkbox-container span {
+  font-size: 0.9rem;
+  color: #666;
+}
